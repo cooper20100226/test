@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>考古題測驗｜計概/網路/OS</title>
+  <style>
+    :root{
+      --bg:#f6fbff;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#dbeafe;
+      --brand:#2563eb;
+      --brand2:#06b6d4;
+      --ok:#16a34a;
+      --bad:#dc2626;
+      --chip:#eff6ff;
+      --shadow: 0 10px 30px rgba(2, 6, 23, .08);
+      --radius: 18px;
+      --btnH: 52px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial;
+      color:var(--text);
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(37,99,235,.18), transparent 60%),
+                  radial-gradient(900px 600px at 110% 10%, rgba(6,182,212,.18), transparent 55%),
+                  var(--bg);
+    }
+    .wrap{max-width:960px;margin:0 auto;padding:18px 14px 40px}
+    header{
+      display:flex;gap:12px;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:5;padding:10px 0 14px;background:linear-gradient(var(--bg), rgba(246,251,255,.75));
+      backdrop-filter: blur(6px);
+    }
+    .title{
+      display:flex;flex-direction:column;gap:4px;
+    }
+    .title h1{margin:0;font-size:20px;letter-spacing:.2px}
+    .title .sub{font-size:13px;color:var(--muted)}
+    .pillbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .pill{
+      background:var(--chip);
+      border:1px solid rgba(37,99,235,.18);
+      color:var(--muted);
+      padding:6px 10px;border-radius:999px;font-size:12px;
+      display:flex;gap:6px;align-items:center;
+    }
+    .pill b{color:var(--text)}
+    .card{
+      background:var(--card);
+      border:1px solid rgba(37,99,235,.12);
+      border-radius:var(--radius);
+      box-shadow: var(--shadow);
+      padding:16px;
+    }
+    .grid{display:grid;gap:12px}
+    @media (min-width:860px){
+      .grid{grid-template-columns: 1.4fr .6fr}
+    }
+    .qhead{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+    .qno{
+      background:linear-gradient(135deg, rgba(37,99,235,.12), rgba(6,182,212,.12));
+      border:1px solid rgba(37,99,235,.18);
+      border-radius:14px;
+      padding:8px 10px;
+      min-width:84px;
+      text-align:center;
+    }
+    .qno .big{font-size:16px;font-weight:800}
+    .qno .small{font-size:12px;color:var(--muted)}
+    .qtext{flex:1}
+    .qtext h2{margin:0 0 8px;font-size:18px;line-height:1.35}
+    .qtext .meta{color:var(--muted);font-size:12px;display:flex;gap:10px;flex-wrap:wrap}
+    .tag{padding:2px 8px;border-radius:999px;background:rgba(37,99,235,.10);border:1px solid rgba(37,99,235,.16);color:var(--muted)}
+    .opts{display:grid;gap:10px;margin-top:12px}
+    .optbtn{
+      width:100%;
+      min-height:var(--btnH);
+      text-align:left;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(2,6,23,.10);
+      background:#fff;
+      cursor:pointer;
+      display:flex;gap:10px;align-items:flex-start;
+      transition: transform .05s ease, border-color .15s ease, box-shadow .15s ease;
+      user-select:none;
+    }
+    .optbtn:active{transform: scale(.99)}
+    .optbtn:hover{border-color: rgba(37,99,235,.35); box-shadow: 0 6px 18px rgba(37,99,235,.08)}
+    .badge{
+      width:28px;height:28px;border-radius:10px;
+      display:grid;place-items:center;
+      background:rgba(2,6,23,.06);
+      border:1px solid rgba(2,6,23,.10);
+      font-weight:800;
+    }
+    .optbtn.correct{border-color: rgba(22,163,74,.45); background: rgba(22,163,74,.06)}
+    .optbtn.wrong{border-color: rgba(220,38,38,.45); background: rgba(220,38,38,.06)}
+    .optbtn.locked{cursor:default}
+    .optbtn.locked:hover{box-shadow:none}
+    .explain{
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      border:1px dashed rgba(71,85,105,.35);
+      background: rgba(241,245,249,.55);
+      color:var(--text);
+      line-height:1.55;
+      font-size:14px;
+      display:none;
+    }
+    .explain.show{display:block}
+    .explain .k{font-weight:800}
+    .side{
+      display:grid;gap:12px;
+      align-content:start;
+    }
+    .btnrow{display:grid;gap:10px}
+    .btn{
+      min-height:var(--btnH);
+      border-radius:14px;
+      border:1px solid rgba(37,99,235,.25);
+      background: linear-gradient(135deg, rgba(37,99,235,.12), rgba(6,182,212,.10));
+      color:var(--text);
+      font-weight:800;
+      cursor:pointer;
+      transition: transform .05s ease;
+    }
+    .btn:active{transform:scale(.99)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(37,99,235,.92), rgba(6,182,212,.88));
+      color:white;border-color: transparent;
+    }
+    .btn.ghost{
+      background:#fff;border:1px solid rgba(2,6,23,.12);font-weight:700;color:var(--text)
+    }
+    .stat{
+      display:grid;gap:8px;
+      padding:12px;border-radius:14px;
+      border:1px solid rgba(2,6,23,.10);
+      background:#fff;
+    }
+    .stat .row{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+    .bar{
+      height:10px;border-radius:999px;background:rgba(2,6,23,.06);overflow:hidden;
+      border:1px solid rgba(2,6,23,.08);
+    }
+    .bar > div{height:100%;width:0%;background:linear-gradient(90deg, rgba(37,99,235,.95), rgba(6,182,212,.95))}
+    .note{font-size:12px;color:var(--muted);line-height:1.45}
+    .footer{margin-top:14px;color:var(--muted);font-size:12px;text-align:center}
+    input[type="text"]{
+      width:100%;
+      min-height:var(--btnH);
+      border-radius:14px;
+      border:1px solid rgba(2,6,23,.14);
+      padding:10px 12px;
+      font-size:15px;
+      outline:none;
+    }
+    input[type="text"]:focus{border-color: rgba(37,99,235,.45); box-shadow: 0 8px 22px rgba(37,99,235,.10)}
+    .mini{font-size:12px;color:var(--muted);margin-top:8px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">
+      <h1>考古題測驗｜計概/網路/OS（含解析）</h1>
+      <div class="sub">單選 + 少量填空（自動判分、立刻解析、可重抽題）</div>
+    </div>
+    <div class="pillbar">
+      <div class="pill"><b id="modeLabel">模式</b>：練習</div>
+      <div class="pill"><b id="bankCount">題庫</b>：0</div>
+      <div class="pill"><b id="acc">正確率</b>：0%</div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <div class="qhead">
+        <div class="qno">
+          <div class="big" id="qIndex">1</div>
+          <div class="small">/ <span id="qTotal">1</span></div>
+        </div>
+        <div class="qtext">
+          <h2 id="qTitle">題目載入中…</h2>
+          <div class="meta">
+            <span class="tag" id="qTopic">Topic</span>
+            <span class="tag" id="qType">Type</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="mcArea" class="opts"></div>
+
+      <div id="inputArea" style="display:none;margin-top:12px">
+        <input id="answerInput" type="text" placeholder="輸入答案（例如：6.287 或 AB+AC+AD+BCD）" />
+        <div class="mini" id="inputHint"></div>
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn primary" id="submitInput">送出</button>
+          <button class="btn ghost" id="showAns">看答案</button>
+        </div>
+      </div>
+
+      <div id="explain" class="explain"></div>
+    </section>
+
+    <aside class="side">
+      <div class="stat">
+        <div class="row"><span>進度</span><span id="progressText">0/0</span></div>
+        <div class="bar"><div id="progressBar"></div></div>
+        <div class="row"><span>答對</span><span id="correctText">0</span></div>
+        <div class="row"><span>答錯</span><span id="wrongText">0</span></div>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn primary" id="nextBtn">下一題 ➜</button>
+        <button class="btn" id="prevBtn">⬅ 上一題</button>
+        <button class="btn ghost" id="shuffleBtn">重抽一份（隨機 12 題）</button>
+        <button class="btn ghost" id="resetBtn">重置成績</button>
+      </div>
+
+      <div class="stat">
+        <div class="row"><span>設定</span><span>快速</span></div>
+        <div style="display:grid;gap:10px;margin-top:6px">
+          <button class="btn ghost" id="toggleMode">切換模式：練習 / 考試</button>
+          <button class="btn ghost" id="toggleExplain">解析：開/關</button>
+        </div>
+        <div class="note">
+          <b>練習</b>：選完立刻顯示對錯＋解析<br/>
+          <b>考試</b>：先作答，按「下一題」才揭曉上一題對錯（更像正式測驗）
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="footer">Made for your 考古題｜可自由增刪題庫（在程式最下方 questionBank）</div>
+</div>
+
+<script>
+/* =========================
+   題庫（依你考古題重點整理）
+   - type: "mc" 單選 / "input" 填空
+   - answer: mc 用 index；input 用字串或數值範圍
+========================= */
+const questionBank = [
+  // RAID
+  {
+    topic:"RAID",
+    type:"mc",
+    title:"RAID 0 的正確敘述是哪一個？",
+    options:[
+      "資料鏡像備份到另一顆，容錯高但容量剩一半",
+      "資料分散條帶化（striping），效能高但沒有容錯，壞一顆全毀",
+      "資料分散並有 parity，可容錯壞兩顆",
+      "資料只寫在一顆硬碟，另一顆當快取"
+    ],
+    answer:1,
+    explain:"RAID 0 = striping（分散寫入）→ 吞吐量高；但沒有 mirror/parity，所以壞一顆資料全毀。"
+  },
+  {
+    topic:"RAID",
+    type:"mc",
+    title:"RAID 5 的關鍵概念是？",
+    options:[
+      "鏡像（mirroring）",
+      "條帶化（striping）+ 分散式 parity",
+      "每顆都存一份完整資料",
+      "只能用兩顆硬碟"
+    ],
+    answer:1,
+    explain:"RAID 5 = striping + distributed parity（不是整份複製）。可容錯壞 1 顆；容量約 (N−1) 顆。"
+  },
+
+  // OSI
+  {
+    topic:"OSI",
+    type:"mc",
+    title:"OSI 七層中，負責路由（Routing）、跨網段轉送的是哪一層？",
+    options:["資料連結層 (L2)","網路層 (L3)","傳輸層 (L4)","應用層 (L7)"],
+    answer:1,
+    explain:"Routing/IP 屬於 Network layer（L3）。L2 看 MAC；L4 是 TCP/UDP；L7 是 HTTP/FTP 等。"
+  },
+  {
+    topic:"OSI",
+    type:"input",
+    title:"請依序寫出 OSI 七層（由下到上），用逗號分隔即可。",
+    hint:"例如：Physical, Data Link, ...",
+    answerText:"Physical, Data Link, Network, Transport, Session, Presentation, Application",
+    checker:(s)=>{
+      const norm = s.toLowerCase().replace(/\s+/g,'');
+      const target = "physical,datalink,network,transport,session,presentation,application".replace(/\s+/g,'');
+      return norm.includes(target);
+    },
+    explain:"由下到上：Physical → Data Link → Network → Transport → Session → Presentation → Application"
+  },
+
+  // Subnet
+  {
+    topic:"Subnet",
+    type:"mc",
+    title:"子網路遮罩 255.255.255.224 等於 /?（CIDR）",
+    options:["/24","/25","/26","/27"],
+    answer:3,
+    explain:"255.255.255.224 最後一段 224 的二進位是 11100000（3 個 1）→ /24 + 3 = /27。"
+  },
+  {
+    topic:"Subnet",
+    type:"mc",
+    title:"在 mask=255.255.255.224（/27）下，最後一段每個網段的大小（區間跨度）是多少？",
+    options:["16","32","64","128"],
+    answer:1,
+    explain:"每段大小 = 256 − 224 = 32。所以區間是 0–31、32–63、64–95、96–127..."
+  },
+  {
+    topic:"Subnet",
+    type:"mc",
+    title:"8.8.8.8 和 8.8.8.108 在 netmask=255.255.255.224 下是否同網段？",
+    options:["同網段","不同網段"],
+    answer:1,
+    explain:"/27 每段 32：8 落在 0–31；108 落在 96–127 → 不同網段。"
+  },
+
+  // Disk time
+  {
+    topic:"Disk",
+    type:"mc",
+    title:"資料傳輸率 6 Gb/s 換算成 GB/s 是多少？",
+    options:["0.75 GB/s","6 GB/s","4.8 GB/s","0.6 GB/s"],
+    answer:0,
+    explain:"1 Byte = 8 bits，所以 6 Gb/s ÷ 8 = 0.75 GB/s。"
+  },
+  {
+    topic:"Disk",
+    type:"input",
+    title:"磁碟 7200 rpm，傳輸 6 Gb/s，Seek 16 ms，讀 4.7 GB。總時間約幾秒？（取平均旋轉延遲半圈）",
+    hint:"答案約 6.287（允許 ±0.05）",
+    checker:(s)=>{
+      const x = Number(String(s).trim());
+      if (Number.isNaN(x)) return false;
+      return Math.abs(x - 6.2868) <= 0.05;
+    },
+    answerText:"約 6.287 秒",
+    explain:"總時間 = Seek(0.016) + 平均旋轉延遲(半圈：7200rpm→120rps→一圈8.333ms→半圈4.167ms=0.004167) + 傳輸(4.7/0.75=6.2667) ≈ 6.2868s。"
+  },
+
+  // K-map SOP results (from your exam)
+  {
+    topic:"K-map",
+    type:"input",
+    title:"F(W,X,Y,Z)=Σ(0,2,5,7,8)+d(10,13,15) 的最簡 SOP？（輸入形如 XZ+X'Z'）",
+    hint:"提示：最簡會只剩 X、Z",
+    checker:(s)=>{
+      const t = String(s).toUpperCase().replace(/\s+/g,'');
+      // accept variants of XZ + X'Z' or XZ + X̄Z̄ etc
+      const ok1 = ["XZ+X'Z'","X'Z'+XZ","XZ+X̄Z̄","X̄Z̄+XZ","(XZ)+(X'Z')","(X'Z')+(XZ)"];
+      return ok1.some(v => t === v.replace(/\s+/g,'').toUpperCase());
+    },
+    answerText:"XZ + X'Z'（XNOR）",
+    explain:"用 K-map 圈 4 格：{5,7,13,15}→XZ；{0,2,8,10(d)}→X'Z'。所以 F= XZ + X'Z'（XNOR）。"
+  },
+
+  // SEO
+  {
+    topic:"SEO",
+    type:"mc",
+    title:"下列哪個最屬於 SEO 的作法？",
+    options:[
+      "把網站圖片全部換成超大解析度（越大越好）",
+      "做關鍵字研究、Title/Meta、內容品質與網站速度優化",
+      "只要狂買廣告就等於 SEO",
+      "把所有頁面都設成 noindex"
+    ],
+    answer:1,
+    explain:"SEO 常見：keyword、Title/Meta、內容品質、速度、行動版友善、外部連結、結構化資料等。"
+  },
+
+  // Commands
+  {
+    topic:"Commands",
+    type:"mc",
+    title:"nslookup 主要用來做什麼？",
+    options:["看本機所有 IP 設定","測試封包延遲與連通","查 DNS（網域↔IP）","追蹤路由 hop"],
+    answer:2,
+    explain:"nslookup = DNS 查詢；ipconfig /all 看本機設定；ping 測連通；tracert 追 hop。"
+  },
+
+  // TCP/UDP & handshake
+  {
+    topic:"TCP/UDP",
+    type:"mc",
+    title:"TCP 和 UDP 的差異，何者正確？",
+    options:[
+      "UDP 有連線、保證順序與重傳",
+      "TCP 不可靠、沒有流量控制",
+      "TCP 可靠（重傳/順序/流控），UDP 低延遲但不保證可靠",
+      "TCP 只能用在影音串流"
+    ],
+    answer:2,
+    explain:"TCP = connection-oriented + reliable；UDP = connectionless + best-effort（常用於串流/遊戲/DNS 等）。"
+  },
+  {
+    topic:"TCP/UDP",
+    type:"mc",
+    title:"TCP 三向交握（3-way handshake）的正確順序？",
+    options:[
+      "ACK → SYN → SYN+ACK",
+      "SYN → SYN+ACK → ACK",
+      "SYN+ACK → SYN → ACK",
+      "FIN → ACK → SYN"
+    ],
+    answer:1,
+    explain:"Client SYN → Server SYN+ACK → Client ACK。"
+  },
+
+  // CPU scheduling
+  {
+    topic:"Scheduling",
+    type:"input",
+    title:"非搶先 SJF：Jobs (arrive,burst)=(0,6),(1,4),(2,10),(3,5)。平均等待時間？",
+    hint:"答案 6.25",
+    checker:(s)=>{
+      const x = Number(String(s).trim());
+      return !Number.isNaN(x) && Math.abs(x - 6.25) <= 0.01;
+    },
+    answerText:"6.25",
+    explain:"非搶先 SJF：J1(0-6)→J2(6-10)→J4(10-15)→J3(15-25)。等待：0,5,7,13 平均=6.25。"
+  },
+  {
+    topic:"Scheduling",
+    type:"input",
+    title:"FCFS：同上 Jobs。平均等待時間？",
+    hint:"答案 7.5",
+    checker:(s)=>{
+      const x = Number(String(s).trim());
+      return !Number.isNaN(x) && Math.abs(x - 7.5) <= 0.01;
+    },
+    answerText:"7.5",
+    explain:"FCFS：J1→J2→J3→J4。等待：0,5,8,17 平均=7.5。"
+  },
+
+  // Voting logic (weighted)
+  {
+    topic:"Logic",
+    type:"input",
+    title:"加權投票：A=45%, B=25%, C=15%, D=15%，同意權重 >51% 輸出 1。最簡 SOP？",
+    hint:"答案：AB+AC+AD+BCD",
+    checker:(s)=>{
+      const t = String(s).toUpperCase().replace(/\s+/g,'');
+      const target = "AB+AC+AD+BCD";
+      const alt = ["A(B+C+D)+BCD","AB+AC+AD+BCD","BCD+AB+AC+AD"];
+      return t === target || alt.some(v => t === v.toUpperCase().replace(/\s+/g,''));
+    },
+    answerText:"AB + AC + AD + BCD（或 A(B+C+D)+BCD）",
+    explain:"條件：45A+25B+15C+15D>51。若 A=1，配任一個 B/C/D 就過→AB+AC+AD；若 A=0，只能 BCD=55% 才過→BCD。"
+  },
+];
+
+/* =========================
+   測驗狀態
+========================= */
+let mode = "practice"; // practice | exam
+let showExplain = true;
+let session = [];      // current picked questions
+let idx = 0;
+let answered = new Map(); // key: sessionIndex -> {correct:boolean, choice/index/value, revealed:boolean}
+
+const $ = (id)=>document.getElementById(id);
+
+function pickSession(n=12){
+  const copy = [...questionBank];
+  shuffle(copy);
+  session = copy.slice(0, Math.min(n, copy.length));
+  idx = 0;
+  answered.clear();
+  updateHeader();
+  render();
+  updateStats();
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function updateHeader(){
+  $("bankCount").textContent = questionBank.length;
+  $("modeLabel").textContent = (mode==="practice"?"模式":"模式");
+}
+
+function setExplain(html){
+  const box = $("explain");
+  box.innerHTML = html;
+  if(showExplain && html) box.classList.add("show");
+  else box.classList.remove("show");
+}
+
+function render(){
+  const q = session[idx];
+  $("qIndex").textContent = idx+1;
+  $("qTotal").textContent = session.length;
+  $("qTitle").textContent = q.title;
+  $("qTopic").textContent = q.topic;
+  $("qType").textContent = q.type === "mc" ? "單選" : "填空";
+
+  // clear
+  $("mcArea").innerHTML = "";
+  $("inputArea").style.display = "none";
+  $("answerInput").value = "";
+  $("inputHint").textContent = "";
+
+  const rec = answered.get(idx);
+
+  if(q.type === "mc"){
+    // render options
+    q.options.forEach((opt, i)=>{
+      const btn = document.createElement("button");
+      btn.className = "optbtn";
+      btn.innerHTML = `<div class="badge">${String.fromCharCode(65+i)}</div><div>${opt}</div>`;
+
+      // if answered and revealed -> colorize
+      if(rec && rec.revealed){
+        btn.classList.add("locked");
+        if(i === q.answer) btn.classList.add("correct");
+        if(i === rec.choice && rec.choice !== q.answer) btn.classList.add("wrong");
+      }
+
+      btn.addEventListener("click", ()=>{
+        if(answered.get(idx)?.revealed) return;
+        handleMC(i);
+      });
+
+      $("mcArea").appendChild(btn);
+    });
+
+    setExplain("");
+    if(rec && rec.revealed){
+      setExplain(formatExplain(q, rec.correct));
+    }
+  }else{
+    $("inputArea").style.display = "block";
+    $("inputHint").textContent = q.hint || "輸入你的答案";
+    setExplain("");
+    if(rec && rec.revealed){
+      $("answerInput").value = rec.value ?? "";
+      setExplain(formatExplain(q, rec.correct));
+    }
+  }
+
+  updateStats();
+}
+
+function handleMC(choice){
+  const q = session[idx];
+  const correct = choice === q.answer;
+  answered.set(idx, {type:"mc", choice, correct, revealed: mode==="practice"});
+  if(mode==="practice"){
+    revealNow();
+  }else{
+    // exam mode: mark chosen but don't reveal yet
+    // visually mark selection (soft)
+    const btns = [...$("mcArea").querySelectorAll(".optbtn")];
+    btns.forEach((b, i)=>{
+      b.style.outline = (i===choice) ? "2px solid rgba(37,99,235,.55)" : "none";
+    });
+  }
+  updateStats();
+}
+
+function handleInputSubmit(showOnly=false){
+  const q = session[idx];
+  const val = $("answerInput").value;
+  const correct = showOnly ? false : (q.checker ? q.checker(val) : false);
+
+  if(showOnly){
+    answered.set(idx, {type:"input", value: val, correct:false, revealed:true, forced:true});
+  }else{
+    answered.set(idx, {type:"input", value: val, correct, revealed: mode==="practice"});
+  }
+
+  if(mode==="practice"){
+    revealNow();
+  }else{
+    // in exam mode: keep not revealed until next
+  }
+  updateStats();
+}
+
+function revealNow(){
+  const q = session[idx];
+  const rec = answered.get(idx);
+  if(!rec) return;
+  rec.revealed = true;
+  answered.set(idx, rec);
+
+  // re-render to show colors / explanation
+  if(q.type==="mc"){
+    const btns = [...$("mcArea").querySelectorAll(".optbtn")];
+    btns.forEach((b, i)=>{
+      b.classList.add("locked");
+      if(i === q.answer) b.classList.add("correct");
+      if(i === rec.choice && rec.choice !== q.answer) b.classList.add("wrong");
+    });
+  }
+  setExplain(formatExplain(q, rec.correct));
+}
+
+function revealPrevIfNeeded(){
+  // in exam mode, when going next, reveal current before moving on
+  if(mode!=="exam") return;
+  const rec = answered.get(idx);
+  if(!rec) return;
+  if(!rec.revealed){
+    rec.revealed = true;
+    answered.set(idx, rec);
+  }
+}
+
+function formatExplain(q, correct){
+  const icon = correct ? "✅" : "❌";
+  const ans = (q.type==="mc")
+    ? `正確答案：<b>${String.fromCharCode(65+q.answer)}</b>`
+    : `參考答案：<b>${escapeHtml(q.answerText || "")}</b>`;
+  const ex = q.explain ? `<div style="margin-top:6px"><span class="k">解析：</span>${escapeHtml(q.explain)}</div>` : "";
+  return `${icon} ${ans}${ex}`;
+}
+
+function escapeHtml(s){
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function updateStats(){
+  const total = session.length;
+  let correct = 0, wrong = 0, revealedCount = 0, answeredCount = 0;
+
+  for(const [k,v] of answered.entries()){
+    if(v.revealed) revealedCount++;
+    answeredCount++;
+    if(v.revealed){
+      if(v.correct) correct++;
+      else wrong++;
+    }
+  }
+
+  $("progressText").textContent = `${idx+1}/${total}`;
+  const pct = Math.round(((idx+1)/total)*100);
+  $("progressBar").style.width = `${pct}%`;
+
+  $("correctText").textContent = String(correct);
+  $("wrongText").textContent = String(wrong);
+
+  const denom = Math.max(1, correct+wrong);
+  const acc = Math.round((correct/denom)*100);
+  $("acc").textContent = `${acc}%`;
+}
+
+function next(){
+  if(mode==="exam"){
+    // reveal current if already answered, then move
+    revealPrevIfNeeded();
+    // if answered, show reveal in place now (before moving) once
+    // but we still move immediately; typical exam flow.
+  }
+  // if in exam mode and answered but not yet shown, briefly render reveal for this question after moving? keep simple: reveal when you come back.
+  if(idx < session.length-1){
+    idx++;
+    render();
+  }else{
+    // end
+    alert("已到最後一題！你可以按「重抽一份」或「重置成績」。");
+  }
+}
+
+function prev(){
+  if(idx > 0){
+    idx--;
+    render();
+  }
+}
+
+$("nextBtn").addEventListener("click", ()=>{
+  if(mode==="exam"){
+    // reveal current if answered and not revealed, then move
+    const rec = answered.get(idx);
+    if(rec && !rec.revealed){
+      rec.revealed = true;
+      answered.set(idx, rec);
+      render(); // show reveal
+      // then move next
+      setTimeout(()=>next(), 120);
+      return;
+    }
+  }
+  next();
+});
+
+$("prevBtn").addEventListener("click", prev);
+$("shuffleBtn").addEventListener("click", ()=>pickSession(12));
+$("resetBtn").addEventListener("click", ()=>{
+  answered.clear();
+  render();
+  updateStats();
+});
+
+$("toggleMode").addEventListener("click", ()=>{
+  mode = (mode==="practice") ? "exam" : "practice";
+  alert(`已切換為：${mode==="practice"?"練習（立即解析）":"考試（延後揭曉）"}`);
+  // keep existing answers but adjust reveal behavior going forward
+  render();
+});
+
+$("toggleExplain").addEventListener("click", ()=>{
+  showExplain = !showExplain;
+  render();
+});
+
+$("submitInput").addEventListener("click", ()=>handleInputSubmit(false));
+$("showAns").addEventListener("click", ()=>{
+  // force reveal with answer text (doesn't count as correct)
+  const q = session[idx];
+  if(q.type!=="input") return;
+  const rec = answered.get(idx);
+  answered.set(idx, {type:"input", value: $("answerInput").value, correct:false, revealed:true, forced:true});
+  setExplain(formatExplain(q, false));
+});
+
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "Enter"){
+    const q = session[idx];
+    if(q.type==="input"){
+      handleInputSubmit(false);
+    }
+  }
+});
+
+// init
+(function(){
+  $("bankCount").textContent = questionBank.length;
+  pickSession(12);
+})();
+</script>
+</body>
+</html>
